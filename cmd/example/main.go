@@ -9,6 +9,9 @@ import (
 	"github.com/travis-ci/sso"
 )
 
+// TODO check nonce lengths
+// TODO csrf
+
 func main() {
 	go func() {
 		http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
