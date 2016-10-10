@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"html"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -15,8 +16,10 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/gorilla/csrf"
 	"github.com/vulcand/oxy/forward"
 )
 
@@ -25,8 +28,13 @@ type SSO struct {
 	APIURL        *url.URL
 	AppPublicURL  *url.URL
 	PublicPath    string
+	TemplatePath  string
 	EncryptionKey []byte
+	CSRFAuthKey   []byte
+	CSRFSecure    bool
 	Authorized    func(User) (bool, error)
+	template      *template.Template
+	templateOnce  sync.Once
 }
 
 type User struct {
@@ -50,49 +58,33 @@ type State struct {
 	Token string
 }
 
-var t *template.Template
-
-func init() {
-	var err error
-	t, err = template.ParseFiles("template/login.html")
-	if err != nil {
-		log.Fatalf("error compiling template: %v", err)
-	}
-}
-
-// rewrite request for forwarding
-func (sso SSO) Rewrite(r *http.Request) {
-
-}
-
-func (sso SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("ServeHTTP")
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/favicon.ico", sso.handleEmpty)
-	mux.HandleFunc("/foo", sso.handleHello)
-	mux.HandleFunc("/bar", sso.handleHello)
 	mux.Handle("/sso/static/", sso.handleStatic(w, req))
+	mux.HandleFunc("/favicon.ico", sso.handleEmpty)
 	mux.HandleFunc("/sso/login", sso.handleLogin)
 	mux.HandleFunc("/sso/logout", sso.handleLogout)
 	mux.HandleFunc("/", http.HandlerFunc(sso.handleRequest))
 
-	mux.ServeHTTP(w, req)
+	server := csrf.Protect(
+		sso.CSRFAuthKey,
+		csrf.FieldName("authenticity_token"),
+		csrf.Secure(sso.CSRFSecure),
+	)(mux)
+	server.ServeHTTP(w, req)
 }
 
-func (sso SSO) handleEmpty(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) handleEmpty(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(204)
 }
 
-func (sso SSO) handleHello(w http.ResponseWriter, req *http.Request) {
-	w.Write([]byte("hello"))
-}
-
-func (sso SSO) handleStatic(w http.ResponseWriter, req *http.Request) http.Handler {
+func (sso *SSO) handleStatic(w http.ResponseWriter, req *http.Request) http.Handler {
 	return http.StripPrefix("/sso/static/", http.FileServer(http.Dir(sso.PublicPath)))
 }
 
-func (sso SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("handleRequest")
 
 	state, err := sso.stateFromRequest(req)
@@ -110,7 +102,7 @@ func (sso SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
 	sso.handleHandshake(w, req)
 }
 
-func (sso SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *State) {
+func (sso *SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *State) {
 	fmt.Println("handleProxy")
 
 	b, err := json.Marshal(state)
@@ -127,7 +119,7 @@ func (sso SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *Stat
 	fwd.ServeHTTP(w, req)
 }
 
-func (sso SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("handleLogin")
 
 	token := ""
@@ -231,7 +223,7 @@ func (sso SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 
-func (sso SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("handleHandshake")
 
 	if req.Method != "GET" && req.Method != "HEAD" {
@@ -240,16 +232,37 @@ func (sso SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	t.Execute(w, map[string]string{
+	fmt.Println("about to call once")
+
+	sso.templateOnce.Do(func() {
+		var err error
+		sso.template, err = template.ParseFiles(sso.TemplatePath + "/login.html")
+		if err != nil {
+			log.Fatalf("error compiling template: %v", err)
+		}
+	})
+
+	sso.template.Execute(w, map[string]interface{}{
 		"Public":   "/sso/static",
 		"Endpoint": sso.APIURL.String(),
 		"Origin":   sso.AppPublicURL.String(),
-		"CSRF":     "",
+		"CSRF":     csrf.Token(req),
 	})
 }
 
-func (sso SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
+func (sso *SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("handleLogout")
+
+	if req.Method != "POST" {
+		w.Header().Add("Content-Type", "text/html; encoding=UTF-8")
+		w.Write([]byte(`<form method="POST" action="/sso/logout">`))
+		w.Write([]byte(`<input type="hidden" name="authenticity_token" value="`))
+		w.Write([]byte(html.EscapeString(csrf.Token(req))))
+		w.Write([]byte(`">`))
+		w.Write([]byte(`<input type="submit" value="logout">`))
+		w.Write([]byte(`</form>`))
+		return
+	}
 
 	domain := sso.AppPublicURL.Host
 	index := strings.Index(domain, ":")
@@ -268,7 +281,7 @@ func (sso SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("logged out"))
 }
 
-func (sso SSO) stateFromRequest(req *http.Request) (*State, error) {
+func (sso *SSO) stateFromRequest(req *http.Request) (*State, error) {
 	cookie, err := req.Cookie("travis.sso")
 	if err == http.ErrNoCookie {
 		return nil, http.ErrNoCookie

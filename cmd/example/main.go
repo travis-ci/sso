@@ -10,7 +10,7 @@ import (
 )
 
 // TODO check nonce lengths
-// TODO csrf
+// TODO make sure json encoding works
 
 func main() {
 	go func() {
@@ -41,7 +41,10 @@ func main() {
 		APIURL:        apiURL,
 		AppPublicURL:  appPublicURL,
 		PublicPath:    "public",
+		TemplatePath:  "template",
 		EncryptionKey: []byte("sa8OoLei6eWiezah9ohk8Wah6Ow6pee9"),
+		CSRFAuthKey:   []byte("oxei9aebonogh1Gaina4ePaitheechei"),
+		CSRFSecure:    false,
 		Authorized: func(u sso.User) (bool, error) {
 			return true, nil
 		},

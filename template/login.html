@@ -54,6 +54,7 @@
   </head>
   <body id="sso">
     <form method="post" action="/sso/login">
+      <input type="hidden" name="authenticity_token" value="{{ .CSRF }}">
       <input type="hidden" name="sso_token" id="sso_token">
     </form>
     <iframe src="{{.Endpoint}}/auth/post_message?origin={{.Origin}}"></iframe>
