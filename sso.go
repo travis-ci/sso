@@ -28,7 +28,7 @@ type SSO struct {
 	UpstreamURL   *url.URL
 	APIURL        *url.URL
 	AppPublicURL  *url.URL
-	PublicPath    string
+	StaticPath    string
 	TemplatePath  string
 	EncryptionKey []byte
 	CSRFAuthKey   []byte
@@ -71,6 +71,8 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	server := csrf.Protect(
 		sso.CSRFAuthKey,
 		csrf.FieldName("authenticity_token"),
+		csrf.Path("/"),
+		csrf.Domain(domainFromHost(sso.AppPublicURL.Host)),
 		csrf.Secure(sso.AppPublicURL.Scheme == "https"),
 	)(mux)
 	server.ServeHTTP(w, req)
@@ -81,7 +83,7 @@ func (sso *SSO) handleEmpty(w http.ResponseWriter, req *http.Request) {
 }
 
 func (sso *SSO) handleStatic(w http.ResponseWriter, req *http.Request) http.Handler {
-	return http.StripPrefix("/sso/static/", http.FileServer(http.Dir(sso.PublicPath)))
+	return http.StripPrefix("/sso/static/", http.FileServer(http.Dir(sso.StaticPath)))
 }
 
 func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
@@ -89,6 +91,9 @@ func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
 
 	state, err := sso.stateFromRequest(req)
 	if err != nil && err != http.ErrNoCookie {
+		// decoding state failed
+		// could be an issue with the cookie, remove it
+		sso.setLogoutCookie(w)
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -203,17 +208,11 @@ func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	encryptedCookie = append(nonce, encryptedCookie...)
 	encodedCookie := base64.StdEncoding.EncodeToString(encryptedCookie)
 
-	domain := sso.AppPublicURL.Host
-	index := strings.Index(domain, ":")
-	if index > 0 {
-		domain = domain[:index]
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:    "travis.sso",
 		Value:   encodedCookie,
 		Path:    "/",
-		Domain:  domain,
+		Domain:  domainFromHost(sso.AppPublicURL.Host),
 		Expires: time.Now().Add(365 * 24 * time.Hour),
 	})
 
@@ -263,19 +262,7 @@ func (sso *SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	domain := sso.AppPublicURL.Host
-	index := strings.Index(domain, ":")
-	if index > 0 {
-		domain = domain[:index]
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:    "travis.sso",
-		Value:   "",
-		Path:    "/",
-		Domain:  domain,
-		Expires: time.Date(1970, time.January, 1, 1, 0, 0, 0, time.UTC),
-	})
+	sso.setLogoutCookie(w)
 
 	w.Write([]byte("logged out"))
 }
@@ -319,6 +306,24 @@ func (sso *SSO) stateFromRequest(req *http.Request) (*State, error) {
 	}
 
 	return state, nil
+}
+
+func (sso *SSO) setLogoutCookie(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{
+		Name:    "travis.sso",
+		Value:   "",
+		Path:    "/",
+		Domain:  domainFromHost(sso.AppPublicURL.Host),
+		Expires: time.Date(1970, time.January, 1, 1, 0, 0, 0, time.UTC),
+	})
+}
+
+func domainFromHost(host string) string {
+	index := strings.Index(host, ":")
+	if index > 0 {
+		return host[:index]
+	}
+	return host
 }
 
 // https://gist.github.com/kkirsche/e28da6754c39d5e7ea10
