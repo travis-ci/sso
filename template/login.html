@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,800' rel='stylesheet' type='text/css'>
+    <title>Travis CI - Single Sign-On</title>
+    <link rel="icon" type="image/png" href="{{.Public}}/favicon.ico">
+    <script>
+      window.addEventListener('message', function(event) {
+        if(event.origin == "{{.Endpoint}}") {
+          if(event.data.token) {
+            document.getElementById('sso_token').value = event.data.token;
+            document.forms[0].submit();
+          } else if(event.data == "redirect") {
+            window.location = "{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}";
+          }
+        }
+      });
+      window.setTimeout(function() {
+        document.getElementById('warning').style.display = 'inherit';
+      }, 10000);
+    </script>
+    <style>
+      @-webkit-keyframes blink { 0% { opacity: 0 } 100% { opacity: 1 } }
+      @-moz-keyframes    blink { 0% { opacity: 0 } 100% { opacity: 1 } }
+      @keyframes         blink { 0% { opacity: 0 } 100% { opacity: 1 } }
+      form { display:none; }
+      iframe { display:none; }
+      body {
+        background-color: #ffffff;
+        font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+        color: #337389;
+      }
+      #login {
+        text-align: center;
+        margin-top: 8%;
+      }
+      #message {
+        margin-top: 45px;
+        font-size: 35px;
+        font-weight: bold;
+      }
+      a {
+        text-decoration: underline;
+        color: #40454F;
+      }
+      #warning {
+        margin-top: 20px;
+        font-size: 20px;
+        color: #919191;
+        display: none;
+      }
+    </style>
+  </head>
+  <body id="sso">
+    <form method="post">
+      <input type="hidden" name="authenticity_token" id="authenticity_token" value="{{.CSRF}}">
+      <input type="hidden" name="sso_token" id="sso_token">
+    </form>
+    <iframe src="{{.Endpoint}}/auth/post_message?origin={{.Origin}}"></iframe>
+    <div id='login'>
+      <img src='{{.Public}}/mustache-spinner.gif' alt='Travis CI' id='logo' />
+      <div id='message'>Authenticating</div>
+      <div id='warning'>
+        Authentication seems to take awfully long.</br> Please
+        <a href="{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}">make sure</a> you are properly logged in.
+      </div>
+    </div>
+  </body>
+</html>
