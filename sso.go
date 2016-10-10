@@ -37,24 +37,24 @@ type SSO struct {
 }
 
 type User struct {
-	ID            int
-	Name          string
-	Login         string
-	Email         string
-	GravatarID    string
-	IsSyncing     bool
-	SyncedAt      string
-	CorrectScopes bool
-	CreatedAt     string
+	ID            int    `json:"id"`
+	Name          string `json:"name"`
+	Login         string `json:"login"`
+	Email         string `json:"email"`
+	GravatarID    string `json:"gravatar_id"`
+	IsSyncing     bool   `json:"is_syncing"`
+	SyncedAt      string `json:"synced_at"`
+	CorrectScopes bool   `json:"correct_scopes"`
+	CreatedAt     string `json:"created_at"`
 }
 
 type APIMessage struct {
-	User User
+	User User `json:"user"`
 }
 
 type State struct {
-	User  User
-	Token string
+	User  User   `json:"user"`
+	Token string `json:"token"`
 }
 
 func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
