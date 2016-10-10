@@ -12,7 +12,7 @@
             document.getElementById('sso_token').value = event.data.token;
             document.forms[0].submit();
           } else if(event.data == "redirect") {
-            window.location = "{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}";
+            window.location = "{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}/sso/login";
           }
         }
       });
@@ -53,8 +53,7 @@
     </style>
   </head>
   <body id="sso">
-    <form method="post">
-      <input type="hidden" name="authenticity_token" id="authenticity_token" value="{{.CSRF}}">
+    <form method="post" action="/sso/login">
       <input type="hidden" name="sso_token" id="sso_token">
     </form>
     <iframe src="{{.Endpoint}}/auth/post_message?origin={{.Origin}}"></iframe>
@@ -63,7 +62,7 @@
       <div id='message'>Authenticating</div>
       <div id='warning'>
         Authentication seems to take awfully long.</br> Please
-        <a href="{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}">make sure</a> you are properly logged in.
+        <a href="{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}/sso/login">make sure</a> you are properly logged in.
       </div>
     </div>
   </body>
