@@ -44,7 +44,6 @@ func main() {
 		TemplatePath:  "template",
 		EncryptionKey: []byte("sa8OoLei6eWiezah9ohk8Wah6Ow6pee9"),
 		CSRFAuthKey:   []byte("oxei9aebonogh1Gaina4ePaitheechei"),
-		CSRFSecure:    false,
 		Authorized: func(u sso.User) (bool, error) {
 			return true, nil
 		},

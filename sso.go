@@ -31,7 +31,6 @@ type SSO struct {
 	TemplatePath  string
 	EncryptionKey []byte
 	CSRFAuthKey   []byte
-	CSRFSecure    bool
 	Authorized    func(User) (bool, error)
 	template      *template.Template
 	templateOnce  sync.Once
@@ -71,7 +70,7 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	server := csrf.Protect(
 		sso.CSRFAuthKey,
 		csrf.FieldName("authenticity_token"),
-		csrf.Secure(sso.CSRFSecure),
+		csrf.Secure(sso.AppPublicURL.Scheme == "https"),
 	)(mux)
 	server.ServeHTTP(w, req)
 }
