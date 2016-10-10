@@ -9,9 +9,6 @@ import (
 	"github.com/travis-ci/sso"
 )
 
-// TODO check nonce lengths
-// TODO make sure json encoding works
-
 func main() {
 	go func() {
 		http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {

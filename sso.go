@@ -7,6 +7,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html"
 	"html/template"
@@ -297,6 +298,14 @@ func (sso *SSO) stateFromRequest(req *http.Request) (*State, error) {
 
 	nonce := encryptedCookie[:12]
 	encryptedCookie = encryptedCookie[12:]
+
+	if len(nonce) != 12 {
+		return nil, errors.New("nonce must be 12 characters in length")
+	}
+
+	if len(encryptedCookie) == 0 {
+		return nil, errors.New("encrypted cookie missing")
+	}
 
 	b, err := decrypt(encryptedCookie, nonce, sso.EncryptionKey)
 	if err != nil {
