@@ -157,7 +157,6 @@ func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	}
 	defer apiResp.Body.Close()
 
-	// TODO: check response code
 	if apiResp.StatusCode != http.StatusOK {
 		content, _ := ioutil.ReadAll(apiResp.Body)
 		http.Error(w, fmt.Sprintf("upstream error, code=%v, body=%v\n", apiResp.StatusCode, string(content)), 500)
