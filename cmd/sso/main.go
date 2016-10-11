@@ -17,7 +17,7 @@ var upstreamURLFlag = flag.String("upstream", "", "upstream url")
 var apiURLFlag = flag.String("api", "https://api.travis-ci.org", "api url")
 var appPublicURLFlag = flag.String("app", "", "app public url")
 
-var staticPath = flag.String("public-path", "static", "path to static files")
+var staticPath = flag.String("static-path", "static", "path to static files")
 var templatePath = flag.String("template-path", "template", "path to templates")
 
 var encryptionKey = flag.String("encryption-key", "", "key used for cookie authenticated encryption (32 chars)")
