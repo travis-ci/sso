@@ -1,2 +1,4 @@
 vendor/**
 !vendor/manifest
+build
+sso
