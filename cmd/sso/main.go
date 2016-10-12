@@ -120,7 +120,7 @@ func main() {
 
 	authorized := make(map[string]bool)
 	for _, login := range strings.Split(*authorizedUsers, ",") {
-		authorized[strings.Trim(login, " ")] = true
+		authorized[strings.ToLower(strings.Trim(login, " "))] = true
 	}
 
 	fmt.Printf("%v\n", authorized)
