@@ -61,6 +61,12 @@ type State struct {
 func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	fmt.Println("ServeHTTP")
 
+	// TODO: HSTS
+	if sso.AppPublicURL.Scheme == "https" && req.URL.Scheme != "https" && req.Header.Get("x-forwarded-proto") != "https" {
+		http.Redirect(w, req, sso.AppPublicURL.String(), http.StatusFound)
+		return
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/sso/static/", sso.handleStatic(w, req))
 	mux.HandleFunc("/favicon.ico", sso.handleEmpty)
