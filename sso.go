@@ -136,6 +136,9 @@ func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	token := ""
 	if req.Method == "POST" {
 		token = req.FormValue("sso_token")
+		if token == "" {
+			token = req.FormValue("token")
+		}
 	}
 
 	if token == "" {
