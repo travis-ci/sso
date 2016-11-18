@@ -66,6 +66,12 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// bypass csrf for POSTS from github
+	if req.Method == "POST" && req.URL.Path == "/sso/login" && req.Header.Get("Origin") == (*sso.APIURL).String() {
+		sso.handleLogin(w, req)
+		return
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/sso/static/", sso.handleStatic(w, req))
 	mux.HandleFunc("/favicon.ico", sso.handleEmpty)
