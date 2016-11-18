@@ -37,8 +37,6 @@ func main() {
 		UpstreamURL:   upstreamURL,
 		APIURL:        apiURL,
 		AppPublicURL:  appPublicURL,
-		StaticPath:    "static",
-		TemplatePath:  "template",
 		EncryptionKey: []byte("sa8OoLei6eWiezah9ohk8Wah6Ow6pee9"),
 		CSRFAuthKey:   []byte("oxei9aebonogh1Gaina4ePaitheechei"),
 		Authorized: func(u sso.User) (bool, error) {

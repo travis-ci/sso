@@ -20,6 +20,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/csrf"
 	"github.com/vulcand/oxy/forward"
 )
@@ -28,8 +29,6 @@ type SSO struct {
 	UpstreamURL   *url.URL
 	APIURL        *url.URL
 	AppPublicURL  *url.URL
-	StaticPath    string
-	TemplatePath  string
 	EncryptionKey []byte
 	CSRFAuthKey   []byte
 	Authorized    func(User) (bool, error)
@@ -89,7 +88,8 @@ func (sso *SSO) handleEmpty(w http.ResponseWriter, req *http.Request) {
 }
 
 func (sso *SSO) handleStatic(w http.ResponseWriter, req *http.Request) http.Handler {
-	return http.StripPrefix("/sso/static/", http.FileServer(http.Dir(sso.StaticPath)))
+	assetDir := &assetfs.AssetFS{Asset: Asset, AssetDir: AssetDir, AssetInfo: AssetInfo, Prefix: "static"}
+	return http.StripPrefix("/sso/static/", http.FileServer(assetDir))
 }
 
 func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
@@ -240,10 +240,11 @@ func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 
 	sso.templateOnce.Do(func() {
 		var err error
-		sso.template, err = template.ParseFiles(sso.TemplatePath + "/login.html")
+		loginHTML, err := Asset("template/login.html")
 		if err != nil {
-			log.Fatalf("error compiling template: %v", err)
+			log.Fatalf("could not find template in bindata: %v", err)
 		}
+		sso.template = template.Must(template.New("login").Parse(string(loginHTML)))
 	})
 
 	sso.template.Execute(w, map[string]interface{}{

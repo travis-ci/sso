@@ -17,9 +17,6 @@ var upstreamURLFlag = flag.String("upstream", "", "upstream url")
 var apiURLFlag = flag.String("api", "https://api.travis-ci.org", "api url")
 var appPublicURLFlag = flag.String("app", "", "app public url")
 
-var staticPath = flag.String("static-path", "static", "path to static files")
-var templatePath = flag.String("template-path", "template", "path to templates")
-
 var encryptionKey = flag.String("encryption-key", "", "key used for cookie authenticated encryption (32 chars)")
 var csrfAuthKey = flag.String("csrf-key", "", "key used for cookie authenticated encryption (32 chars)")
 
@@ -67,34 +64,6 @@ func main() {
 		return
 	}
 
-	if *staticPath == "" {
-		fmt.Printf("missing static-path\n")
-		return
-	}
-	ok, err := isDir(*staticPath)
-	if err != nil {
-		fmt.Printf("invalid static-path %v: %v\n", *staticPath, err)
-		return
-	}
-	if !ok {
-		fmt.Printf("invalid static-path %v\n", *staticPath)
-		return
-	}
-
-	if *templatePath == "" {
-		fmt.Printf("missing template-path\n")
-		return
-	}
-	ok, err = isDir(*templatePath)
-	if err != nil {
-		fmt.Printf("invalid template-path %v: %v\n", *templatePath, err)
-		return
-	}
-	if !ok {
-		fmt.Printf("invalid template-path %v\n", *templatePath)
-		return
-	}
-
 	if *encryptionKey == "" {
 		fmt.Printf("missing encryption-key\n")
 		return
@@ -129,8 +98,6 @@ func main() {
 		UpstreamURL:   upstreamURL,
 		APIURL:        apiURL,
 		AppPublicURL:  appPublicURL,
-		StaticPath:    *staticPath,
-		TemplatePath:  *templatePath,
 		EncryptionKey: []byte(*encryptionKey),
 		CSRFAuthKey:   []byte(*csrfAuthKey),
 		Authorized: func(u sso.User) (bool, error) {

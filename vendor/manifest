@@ -4,14 +4,24 @@
 		{
 			"importpath": "github.com/Sirupsen/logrus",
 			"repository": "https://github.com/Sirupsen/logrus",
-			"revision": "3ec0642a7fb6488f65b06f9040adc67e3990296a",
+			"vcs": "git",
+			"revision": "abc6f20dabf4b10195f233ad21ea6c5ba33acae0",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/elazarl/go-bindata-assetfs",
+			"repository": "https://github.com/elazarl/go-bindata-assetfs",
+			"vcs": "git",
+			"revision": "9a6736ed45b44bf3835afeebb3034b57ed329f3e",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "df1d3ca07d2d07bba352d5b73c4313b4e2a6203e",
+			"vcs": "git",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
 			"branch": "master",
 			"path": "/proto",
 			"notests": true
@@ -19,7 +29,8 @@
 		{
 			"importpath": "github.com/golang/protobuf/ptypes/any",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "df1d3ca07d2d07bba352d5b73c4313b4e2a6203e",
+			"vcs": "git",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
 			"branch": "master",
 			"path": "ptypes/any",
 			"notests": true
@@ -27,6 +38,7 @@
 		{
 			"importpath": "github.com/gorilla/context",
 			"repository": "https://github.com/gorilla/context",
+			"vcs": "git",
 			"revision": "08b5f424b9271eedf6f9f0ce86cb9396ed337a42",
 			"branch": "master",
 			"notests": true
@@ -34,42 +46,56 @@
 		{
 			"importpath": "github.com/gorilla/csrf",
 			"repository": "https://github.com/gorilla/csrf",
-			"revision": "bbe668740d1d0d07e117e840a4b704e06e719da7",
+			"vcs": "git",
+			"revision": "fdae182b1882857ae6a246467084c30af79be824",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/gorilla/securecookie",
 			"repository": "https://github.com/gorilla/securecookie",
+			"vcs": "git",
 			"revision": "fa5329f913702981df43dcb2a380bac429c810b5",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/jteeuwen/go-bindata",
+			"repository": "https://github.com/jteeuwen/go-bindata",
+			"vcs": "git",
+			"revision": "a0ff2567cfb70903282db057e799fd826784d41d",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/onsi/ginkgo",
 			"repository": "https://github.com/onsi/ginkgo",
-			"revision": "acfa16ac8e9e0d2c6b11cfe78c79d8652c3ee3fd",
+			"vcs": "git",
+			"revision": "00054c0bb96fc880d4e0be1b90937fad438c5290",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/onsi/gomega",
 			"repository": "https://github.com/onsi/gomega",
-			"revision": "d59fa0ac68bb5dd932ee8d24eed631cdd519efc3",
+			"vcs": "git",
+			"revision": "2b6ed62707a2f5fdf1ba9cd856cdeec6bfff6b61",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/pkg/errors",
 			"repository": "https://github.com/pkg/errors",
-			"revision": "839d9e913e063e28dfd0e6c7b7512793e0a48be9",
+			"vcs": "git",
+			"revision": "248dadf4e9068a0b3e79f02ed0a610d935de5302",
 			"branch": "master",
 			"notests": true
 		},
 		{
 			"importpath": "github.com/stretchr/testify/assert",
 			"repository": "https://github.com/stretchr/testify",
-			"revision": "976c720a22c8eb4eb6a0b4348ad85ad12491a506",
+			"vcs": "git",
+			"revision": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e",
 			"branch": "master",
 			"path": "/assert",
 			"notests": true
@@ -77,7 +103,8 @@
 		{
 			"importpath": "github.com/stretchr/testify/vendor/github.com/davecgh/go-spew/spew",
 			"repository": "https://github.com/stretchr/testify",
-			"revision": "976c720a22c8eb4eb6a0b4348ad85ad12491a506",
+			"vcs": "git",
+			"revision": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e",
 			"branch": "master",
 			"path": "vendor/github.com/davecgh/go-spew/spew",
 			"notests": true
@@ -85,7 +112,8 @@
 		{
 			"importpath": "github.com/stretchr/testify/vendor/github.com/pmezard/go-difflib/difflib",
 			"repository": "https://github.com/stretchr/testify",
-			"revision": "976c720a22c8eb4eb6a0b4348ad85ad12491a506",
+			"vcs": "git",
+			"revision": "18a02ba4a312f95da08ff4cfc0055750ce50ae9e",
 			"branch": "master",
 			"path": "vendor/github.com/pmezard/go-difflib/difflib",
 			"notests": true
@@ -93,7 +121,8 @@
 		{
 			"importpath": "github.com/vulcand/oxy/forward",
 			"repository": "https://github.com/vulcand/oxy",
-			"revision": "cf724ef3fc60a49914f76c6171e95ed1db6a5bf8",
+			"vcs": "git",
+			"revision": "9dd01504c4a133f42a424c63ff0fdd92661d3e30",
 			"branch": "master",
 			"path": "/forward",
 			"notests": true
@@ -101,7 +130,8 @@
 		{
 			"importpath": "github.com/vulcand/oxy/testutils",
 			"repository": "https://github.com/vulcand/oxy",
-			"revision": "cf724ef3fc60a49914f76c6171e95ed1db6a5bf8",
+			"vcs": "git",
+			"revision": "9dd01504c4a133f42a424c63ff0fdd92661d3e30",
 			"branch": "master",
 			"path": "testutils",
 			"notests": true
@@ -109,7 +139,8 @@
 		{
 			"importpath": "github.com/vulcand/oxy/utils",
 			"repository": "https://github.com/vulcand/oxy",
-			"revision": "cf724ef3fc60a49914f76c6171e95ed1db6a5bf8",
+			"vcs": "git",
+			"revision": "9dd01504c4a133f42a424c63ff0fdd92661d3e30",
 			"branch": "master",
 			"path": "utils",
 			"notests": true
@@ -117,7 +148,8 @@
 		{
 			"importpath": "golang.org/x/net/websocket",
 			"repository": "https://go.googlesource.com/net",
-			"revision": "f4b625ec9b21d620bb5ce57f2dfc3e08ca97fce6",
+			"vcs": "git",
+			"revision": "4971afdc2f162e82d185353533d3cf16188a9f4e",
 			"branch": "master",
 			"path": "/websocket",
 			"notests": true
@@ -125,7 +157,8 @@
 		{
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
-			"revision": "8d1157a435470616f975ff9bb013bea8d0962067",
+			"vcs": "git",
+			"revision": "b699b7032584f0953262cb2788a0ca19bb494703",
 			"branch": "master",
 			"path": "/unix",
 			"notests": true
@@ -133,6 +166,7 @@
 		{
 			"importpath": "gopkg.in/airbrake/gobrake.v2",
 			"repository": "https://gopkg.in/airbrake/gobrake.v2",
+			"vcs": "git",
 			"revision": "5d77bd50d083834501349f8be70197b26963674d",
 			"branch": "master",
 			"notests": true
@@ -140,6 +174,7 @@
 		{
 			"importpath": "gopkg.in/check.v1",
 			"repository": "https://gopkg.in/check.v1",
+			"vcs": "git",
 			"revision": "4f90aeace3a26ad7021961c297b22c42160c7b25",
 			"branch": "v1",
 			"notests": true
@@ -147,6 +182,7 @@
 		{
 			"importpath": "gopkg.in/gemnasium/logrus-airbrake-hook.v2",
 			"repository": "https://gopkg.in/gemnasium/logrus-airbrake-hook.v2",
+			"vcs": "git",
 			"revision": "bfee1239d796830ca346767650cce5ba90d58c57",
 			"branch": "master",
 			"notests": true
@@ -154,6 +190,7 @@
 		{
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
+			"vcs": "git",
 			"revision": "a5b47d31c556af34a302ce5d659e6fea44d90de0",
 			"branch": "v2",
 			"notests": true
