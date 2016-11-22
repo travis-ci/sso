@@ -2,6 +2,7 @@ package sso
 
 import (
 	"bytes"
+	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -67,9 +68,10 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// bypass csrf for POSTS from github
-	if req.Method == "POST" && req.URL.Path == "/sso/login" && req.Header.Get("Origin") == (*sso.APIURL).String() {
-		sso.handleLogin(w, req)
-		return
+	if req.Method == "POST" && req.URL.Path == "/sso/login" {
+		ctx := req.Context()
+		ctx = context.WithValue(ctx, "gorilla.csrf.Skip", true)
+		req = req.WithContext(ctx)
 	}
 
 	mux := http.NewServeMux()
