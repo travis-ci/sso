@@ -16,3 +16,7 @@ Session information is stored in an encrypted cookie (authenticated encryption),
 ## Run
 
     $ go run cmd/sso/main.go -upstream 'https://gif.industries' -app 'http://localhost:8080' -encryption-key $(pwgen 32 1) -csrf-key $(pwgen 32 1) -authorized-users 'igorwwwwwwwwwwwwwwwwwwww,svenfuchs'
+
+## Release
+
+    $ make github-release

@@ -11,3 +11,8 @@ crossbuild: bindata.go
 bindata.go:
 	go get -u github.com/jteeuwen/go-bindata/...
 	go-bindata -pkg sso static template
+
+.PHONY: github-release
+github-release: crossbuild
+	bundle install
+	bundle exec ruby github-release.rb

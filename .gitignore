@@ -2,3 +2,4 @@ vendor/**
 !vendor/manifest
 build
 /sso
+.env
