@@ -327,13 +327,16 @@ func (sso *SSO) stateFromRequest(req *http.Request) (*State, error) {
 }
 
 func (sso *SSO) setLogoutCookie(w http.ResponseWriter) {
-	http.SetCookie(w, &http.Cookie{
-		Name:    "travis.sso",
-		Value:   "",
-		Path:    "/",
-		Domain:  domainFromHost(sso.AppPublicURL.Host),
-		Expires: time.Date(1970, time.January, 1, 1, 0, 0, 0, time.UTC),
-	})
+	cookieNames := []string{"travis.sso", "_gorilla_csrf"}
+	for _, cookieName := range cookieNames {
+		http.SetCookie(w, &http.Cookie{
+			Name:    cookieName,
+			Value:   "",
+			Path:    "/",
+			Domain:  domainFromHost(sso.AppPublicURL.Host),
+			Expires: time.Date(1970, time.January, 1, 1, 0, 0, 0, time.UTC),
+		})
+	}
 }
 
 func domainFromHost(host string) string {
