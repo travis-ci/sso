@@ -78,8 +78,8 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	mux.Handle("/sso/static/", sso.handleStatic(w, req))
 	mux.HandleFunc("/favicon.ico", sso.handleEmpty)
 	mux.HandleFunc("/sso/login", sso.handleLogin)
-	mux.HandleFunc("/sso/logout", sso.handleLogout)
-	mux.HandleFunc("/", http.HandlerFunc(sso.handleRequest))
+	mux.Handle("/sso/logout", sso.csrfProtectHandler(sso.handleLogout))
+	mux.HandleFunc("/", sso.handleRequest)
 
 	server := csrf.Protect(
 		sso.CSRFAuthKey,
@@ -89,6 +89,16 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		csrf.Secure(sso.AppPublicURL.Scheme == "https"),
 	)(mux)
 	server.ServeHTTP(w, req)
+}
+
+func (sso *SSO) csrfProtectHandler(handler http.HandlerFunc) http.Handler {
+	return csrf.Protect(
+		sso.CSRFAuthKey,
+		csrf.FieldName("authenticity_token"),
+		csrf.Path("/"),
+		csrf.Domain(domainFromHost(sso.AppPublicURL.Host)),
+		csrf.Secure(sso.AppPublicURL.Scheme == "https"),
+	)(handler)
 }
 
 func (sso *SSO) handleEmpty(w http.ResponseWriter, req *http.Request) {
