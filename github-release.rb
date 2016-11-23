@@ -9,6 +9,8 @@ if not ENV['GITHUB_TOKEN']
   exit 1
 end
 
+puts "🐙  preparing for github release"
+
 client = Octokit::Client.new(:access_token => ENV['GITHUB_TOKEN'])
 
 user = client.user

@@ -19,4 +19,6 @@ Session information is stored in an encrypted cookie (authenticated encryption),
 
 ## Release
 
+    $ git tag v0.1.10
+    $ git push origin v0.1.10
     $ make github-release
