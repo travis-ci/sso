@@ -67,7 +67,7 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// bypass csrf for POSTS from github
+	// bypass csrf for POSTS from api/github
 	if req.Method == "POST" && req.URL.Path == "/sso/login" {
 		ctx := req.Context()
 		ctx = context.WithValue(ctx, "gorilla.csrf.Skip", true)
@@ -81,14 +81,7 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	mux.Handle("/sso/logout", sso.csrfProtectHandler(sso.handleLogout))
 	mux.HandleFunc("/", sso.handleRequest)
 
-	server := csrf.Protect(
-		sso.CSRFAuthKey,
-		csrf.FieldName("authenticity_token"),
-		csrf.Path("/"),
-		csrf.Domain(domainFromHost(sso.AppPublicURL.Host)),
-		csrf.Secure(sso.AppPublicURL.Scheme == "https"),
-	)(mux)
-	server.ServeHTTP(w, req)
+	mux.ServeHTTP(w, req)
 }
 
 func (sso *SSO) csrfProtectHandler(handler http.HandlerFunc) http.Handler {
