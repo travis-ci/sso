@@ -257,7 +257,6 @@ func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 		"Public":   "/sso/static",
 		"Endpoint": sso.APIURL.String(),
 		"Origin":   sso.AppPublicURL.String(),
-		"CSRF":     csrf.Token(req),
 	})
 }
 
