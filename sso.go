@@ -2,7 +2,6 @@ package sso
 
 import (
 	"bytes"
-	"context"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -65,13 +64,6 @@ func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if sso.AppPublicURL.Scheme == "https" && req.URL.Scheme != "https" && req.Header.Get("x-forwarded-proto") != "https" {
 		http.Redirect(w, req, sso.AppPublicURL.String(), http.StatusFound)
 		return
-	}
-
-	// bypass csrf for POSTS from api/github
-	if req.Method == "POST" && req.URL.Path == "/sso/login" {
-		ctx := req.Context()
-		ctx = context.WithValue(ctx, "gorilla.csrf.Skip", true)
-		req = req.WithContext(ctx)
 	}
 
 	mux := http.NewServeMux()
