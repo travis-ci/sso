@@ -1,4 +1,4 @@
 <form method="POST" action="/sso/logout">
-  <input type="hidden" name="authenticity_token" value="{{ .CSRF }}">
+  <input type="hidden" name="authenticity_token" value="{{.CSRF}}">
   <input type="submit" value="logout">
 </form>
