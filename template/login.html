@@ -9,7 +9,7 @@
       window.addEventListener('message', function(event) {
         if(event.origin == "{{.Endpoint}}") {
           if(event.data.token) {
-            document.getElementById('sso_token').value = event.data.token;
+            document.getElementById('token').value = event.data.token;
             document.forms[0].submit();
           } else if(event.data == "redirect") {
             window.location = "{{.Endpoint}}/auth/handshake?redirect_uri={{.Origin}}/sso/login";
@@ -54,7 +54,7 @@
   </head>
   <body id="sso">
     <form method="post" action="/sso/login">
-      <input type="hidden" name="sso_token" id="sso_token">
+      <input type="hidden" name="token" id="token">
     </form>
     <iframe src="{{.Endpoint}}/auth/post_message?origin={{.Origin}}"></iframe>
     <div id='login'>
