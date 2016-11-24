@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"html"
 	"html/template"
 	"io"
 	"io/ioutil"
@@ -17,13 +16,30 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/csrf"
 	"github.com/vulcand/oxy/forward"
 )
+
+var (
+	templateLogin  *template.Template
+	templateLogout *template.Template
+)
+
+func init() {
+	templateLogin = mustCompileAssetTemplate("login", "template/login.html")
+	templateLogout = mustCompileAssetTemplate("logout", "template/logout.html")
+}
+
+func mustCompileAssetTemplate(templateName string, filename string) *template.Template {
+	templateHTML, err := Asset(filename)
+	if err != nil {
+		log.Fatalf("could not find template %s in bindata: %v", filename, err)
+	}
+	return template.Must(template.New(templateName).Parse(string(templateHTML)))
+}
 
 type SSO struct {
 	UpstreamURL   *url.URL
@@ -32,8 +48,6 @@ type SSO struct {
 	EncryptionKey []byte
 	CSRFAuthKey   []byte
 	Authorized    func(User) (bool, error)
-	template      *template.Template
-	templateOnce  sync.Once
 }
 
 type User struct {
@@ -242,18 +256,7 @@ func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("about to call once")
-
-	sso.templateOnce.Do(func() {
-		var err error
-		loginHTML, err := Asset("template/login.html")
-		if err != nil {
-			log.Fatalf("could not find template in bindata: %v", err)
-		}
-		sso.template = template.Must(template.New("login").Parse(string(loginHTML)))
-	})
-
-	sso.template.Execute(w, map[string]interface{}{
+	templateLogin.Execute(w, map[string]interface{}{
 		"Public":   "/sso/static",
 		"Endpoint": sso.APIURL.String(),
 		"Origin":   sso.AppPublicURL.String(),
@@ -265,12 +268,9 @@ func (sso *SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
 
 	if req.Method != "POST" {
 		w.Header().Add("Content-Type", "text/html; encoding=UTF-8")
-		w.Write([]byte(`<form method="POST" action="/sso/logout">`))
-		w.Write([]byte(`<input type="hidden" name="authenticity_token" value="`))
-		w.Write([]byte(html.EscapeString(csrf.Token(req))))
-		w.Write([]byte(`">`))
-		w.Write([]byte(`<input type="submit" value="logout">`))
-		w.Write([]byte(`</form>`))
+		templateLogout.Execute(w, map[string]interface{}{
+			"CSRF": csrf.Token(req),
+		})
 		return
 	}
 
