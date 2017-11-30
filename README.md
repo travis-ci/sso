@@ -1,4 +1,4 @@
-# sso
+# sso [![Build Status](https://travis-ci.org/travis-ci/sso.svg?branch=master)](https://travis-ci.org/travis-ci/sso)
 
 This project is a port of [travis-sso](https://github.com/travis-ci/travis-sso) from ruby to go.
 

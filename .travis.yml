@@ -1,0 +1,13 @@
+language: go
+go: 1.9.2
+
+env:
+  global:
+  - UNAME="$(uname | tr '[:upper:]' '[:lower:]')"
+
+before_install:
+- go get github.com/FiloSottile/gvt
+
+script:
+- gvt restore
+- make build
