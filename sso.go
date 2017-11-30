@@ -5,6 +5,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -49,12 +50,13 @@ func debug(msg string) {
 }
 
 type SSO struct {
-	UpstreamURL   *url.URL
-	APIURL        *url.URL
-	AppPublicURL  *url.URL
-	EncryptionKey []byte
-	CSRFAuthKey   []byte
-	Authorized    func(User) (bool, error)
+	UpstreamURL    *url.URL
+	APIURL         *url.URL
+	AppPublicURL   *url.URL
+	EncryptionKey  []byte
+	CSRFAuthKey    []byte
+	BasicAuthToken []byte
+	Authorized     func(User) (bool, error)
 }
 
 type User struct {
@@ -134,6 +136,12 @@ func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if sso.authenticatedViaBasicAuthToken(req) {
+		// we are authenticated via basic auth token, bypass sso authentication
+		sso.handleProxyBypass(w, req)
+		return
+	}
+
 	sso.handleHandshake(w, req)
 }
 
@@ -149,6 +157,16 @@ func (sso *SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *Sta
 	req.URL.Scheme = sso.UpstreamURL.Scheme
 	req.URL.Host = sso.UpstreamURL.Host
 	req.Header.Add("Travis-State", string(b))
+
+	fwd, _ := forward.New()
+	fwd.ServeHTTP(w, req)
+}
+
+func (sso *SSO) handleProxyBypass(w http.ResponseWriter, req *http.Request) {
+	debug("handleProxyBypass")
+
+	req.URL.Scheme = sso.UpstreamURL.Scheme
+	req.URL.Host = sso.UpstreamURL.Host
 
 	fwd, _ := forward.New()
 	fwd.ServeHTTP(w, req)
@@ -281,6 +299,22 @@ func (sso *SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
 	sso.setLogoutCookie(w)
 
 	w.Write([]byte("logged out"))
+}
+
+func (sso *SSO) authenticatedViaBasicAuthToken(req *http.Request) bool {
+	if len(sso.BasicAuthToken) == 0 {
+		return false
+	}
+
+	user, pass, ok := req.BasicAuth()
+	if !ok {
+		return false
+	}
+
+	if user == "token" && subtle.ConstantTimeCompare([]byte(pass), sso.BasicAuthToken) == 1 {
+		return true
+	}
+	return false
 }
 
 func (sso *SSO) stateFromRequest(req *http.Request) (*State, error) {

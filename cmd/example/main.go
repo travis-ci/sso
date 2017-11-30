@@ -34,11 +34,12 @@ func main() {
 	}
 
 	sso := &sso.SSO{
-		UpstreamURL:   upstreamURL,
-		APIURL:        apiURL,
-		AppPublicURL:  appPublicURL,
-		EncryptionKey: []byte("sa8OoLei6eWiezah9ohk8Wah6Ow6pee9"),
-		CSRFAuthKey:   []byte("oxei9aebonogh1Gaina4ePaitheechei"),
+		UpstreamURL:    upstreamURL,
+		APIURL:         apiURL,
+		AppPublicURL:   appPublicURL,
+		EncryptionKey:  []byte("sa8OoLei6eWiezah9ohk8Wah6Ow6pee9"),
+		CSRFAuthKey:    []byte("oxei9aebonogh1Gaina4ePaitheechei"),
+		BasicAuthToken: []byte("ed8ohK6yai1OdeeQuaiYohXuv0Ooc6oo"),
 		Authorized: func(u sso.User) (bool, error) {
 			return true, nil
 		},

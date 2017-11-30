@@ -22,6 +22,8 @@ var csrfAuthKey = flag.String("csrf-key", "", "key used for cookie authenticated
 
 var authorizedUsers = flag.String("authorized-users", "", "comma-separated list of users that are authorized to use the app")
 
+var basicAuthToken = flag.String("basic-auth-token", "", "token for bypassing sso via basic auth")
+
 func isDir(pth string) (bool, error) {
 	fi, err := os.Stat(pth)
 	if err != nil {
@@ -93,11 +95,12 @@ func main() {
 	}
 
 	sso := &sso.SSO{
-		UpstreamURL:   upstreamURL,
-		APIURL:        apiURL,
-		AppPublicURL:  appPublicURL,
-		EncryptionKey: []byte(*encryptionKey),
-		CSRFAuthKey:   []byte(*csrfAuthKey),
+		UpstreamURL:    upstreamURL,
+		APIURL:         apiURL,
+		AppPublicURL:   appPublicURL,
+		EncryptionKey:  []byte(*encryptionKey),
+		CSRFAuthKey:    []byte(*csrfAuthKey),
+		BasicAuthToken: []byte(*basicAuthToken),
 		Authorized: func(u sso.User) (bool, error) {
 			return authorized[u.Login], nil
 		},
