@@ -35,56 +35,56 @@ func main() {
 	flag.Parse()
 
 	if *upstreamURLFlag == "" {
-		fmt.Printf("missing upstream url\n")
-		return
+		fmt.Printf("error: missing upstream url\n")
+		os.Exit(1)
 	}
 	upstreamURL, err := url.Parse(*upstreamURLFlag)
 	if err != nil {
-		fmt.Printf("invalid upstream url: %v\n", err)
-		return
+		fmt.Printf("error: invalid upstream url: %v\n", err)
+		os.Exit(1)
 	}
 
 	if *upstreamURLFlag == "" {
-		fmt.Printf("missing api url\n")
-		return
+		fmt.Printf("error: missing api url\n")
+		os.Exit(1)
 	}
 	apiURL, err := url.Parse(*apiURLFlag)
 	if err != nil {
-		fmt.Printf("invalid api url: %v\n", err)
-		return
+		fmt.Printf("error: invalid api url: %v\n", err)
+		os.Exit(1)
 	}
 
 	if *appPublicURLFlag == "" {
-		fmt.Printf("missing app public url\n")
-		return
+		fmt.Printf("error: missing app public url\n")
+		os.Exit(1)
 	}
 	appPublicURL, err := url.Parse(*appPublicURLFlag)
 	if err != nil {
-		fmt.Printf("invalid app public url: %v\n", err)
-		return
+		fmt.Printf("error: invalid app public url: %v\n", err)
+		os.Exit(1)
 	}
 
 	if *encryptionKey == "" {
-		fmt.Printf("missing encryption-key\n")
-		return
+		fmt.Printf("error: missing encryption-key\n")
+		os.Exit(1)
 	}
 	if len(*encryptionKey) != 32 {
-		fmt.Printf("invalid encryption-key: length must be exactly 32 bytes\n")
-		return
+		fmt.Printf("error: invalid encryption-key: length must be exactly 32 bytes\n")
+		os.Exit(1)
 	}
 
 	if *csrfAuthKey == "" {
-		fmt.Printf("missing csrf-key\n")
-		return
+		fmt.Printf("error: missing csrf-key\n")
+		os.Exit(1)
 	}
 	if len(*csrfAuthKey) != 32 {
-		fmt.Printf("invalid csrf-key: length must be exactly 32 bytes\n")
-		return
+		fmt.Printf("error: invalid csrf-key: length must be exactly 32 bytes\n")
+		os.Exit(1)
 	}
 
 	if *authorizedUsers == "" {
-		fmt.Printf("missing authorized-users\n")
-		return
+		fmt.Printf("error: missing authorized-users\n")
+		os.Exit(1)
 	}
 
 	authorized := make(map[string]bool)
