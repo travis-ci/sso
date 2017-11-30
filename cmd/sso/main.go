@@ -92,8 +92,6 @@ func main() {
 		authorized[strings.Trim(login, " ")] = true
 	}
 
-	fmt.Printf("%v\n", authorized)
-
 	sso := &sso.SSO{
 		UpstreamURL:   upstreamURL,
 		APIURL:        apiURL,
