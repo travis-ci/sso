@@ -15,6 +15,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -39,6 +40,12 @@ func mustCompileAssetTemplate(templateName string, filename string) *template.Te
 		log.Fatalf("could not find template %s in bindata: %v", filename, err)
 	}
 	return template.Must(template.New(templateName).Parse(string(templateHTML)))
+}
+
+func debug(msg string) {
+	if os.Getenv("DEBUG") == "1" || os.Getenv("DEBUG") == "true" {
+		log.Println(msg)
+	}
 }
 
 type SSO struct {
@@ -72,7 +79,7 @@ type State struct {
 }
 
 func (sso *SSO) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("ServeHTTP")
+	debug("ServeHTTP")
 
 	// TODO: HSTS
 	if sso.AppPublicURL.Scheme == "https" && req.URL.Scheme != "https" && req.Header.Get("x-forwarded-proto") != "https" {
@@ -110,7 +117,7 @@ func (sso *SSO) handleStatic(w http.ResponseWriter, req *http.Request) http.Hand
 }
 
 func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("handleRequest")
+	debug("handleRequest")
 
 	state, err := sso.stateFromRequest(req)
 	if err != nil && err != http.ErrNoCookie {
@@ -131,7 +138,7 @@ func (sso *SSO) handleRequest(w http.ResponseWriter, req *http.Request) {
 }
 
 func (sso *SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *State) {
-	fmt.Println("handleProxy")
+	debug("handleProxy")
 
 	b, err := json.Marshal(state)
 	if err != nil {
@@ -148,7 +155,7 @@ func (sso *SSO) handleProxy(w http.ResponseWriter, req *http.Request, state *Sta
 }
 
 func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("handleLogin")
+	debug("handleLogin")
 
 	token := ""
 	if req.Method == "POST" {
@@ -156,7 +163,7 @@ func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if token == "" {
-		log.Println("no token found, try again")
+		debug("no token found, try again")
 		http.Redirect(w, req, "/", http.StatusFound)
 		return
 	}
@@ -239,13 +246,13 @@ func (sso *SSO) handleLogin(w http.ResponseWriter, req *http.Request) {
 		Expires: time.Now().Add(365 * 24 * time.Hour),
 	})
 
-	fmt.Println("cookies set, redirecting back")
+	debug("cookies set, redirecting back")
 
 	http.Redirect(w, req, "/", http.StatusFound)
 }
 
 func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("handleHandshake")
+	debug("handleHandshake")
 
 	if req.Method != "GET" && req.Method != "HEAD" {
 		w.Header().Set("Allow", "GET, HEAD")
@@ -261,7 +268,7 @@ func (sso *SSO) handleHandshake(w http.ResponseWriter, req *http.Request) {
 }
 
 func (sso *SSO) handleLogout(w http.ResponseWriter, req *http.Request) {
-	fmt.Println("handleLogout")
+	debug("handleLogout")
 
 	if req.Method != "POST" {
 		w.Header().Add("Content-Type", "text/html; encoding=UTF-8")
